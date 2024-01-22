@@ -14,8 +14,9 @@ Maven
 MySQL
 Spring Data JPA
 Spring MVC
-Como executar o projeto
-Para executar o projeto, siga as seguintes etapas:
+
+# Como executar o projeto
+  Para executar o projeto, siga as seguintes etapas:
 
 # Clone o projeto do GitHub:
 git clone https://github.com/gregoricfranco/exemplo-spring-boot-api
