@@ -30,3 +30,7 @@ O projeto será iniciado na porta 8080.
 # Como usar o projeto
 Após iniciar o projeto, você pode acessar a aplicação no seguinte endereço:
 http://localhost:8080
+
+| Método | Endpoint | Parâmetros | Descrição | 
+|  :---:        |     :---:      |           :---:  |   :---: |
+| GET /pessoas |	Lista todos os usuários	|| 	Retorna uma lista de todos os usuários registrados no sistema.| 
