@@ -21,8 +21,8 @@ public class Pessoa {
     @Column(name = "endereco")
     private String endereco;
 
-    @Column(name = "categoria_id")
-    private Long categoriaId;
+    @OneToOne
+    private Categoria categoria;
 
     public Long getId() {
         return id;
@@ -56,13 +56,11 @@ public class Pessoa {
         this.endereco = endereco;
     }
 
-    public Long getCategoriaId() {
-        return categoriaId;
+    public Categoria getCategoria() {
+        return categoria;
     }
 
-    public void setCategoriaId(Long categoriaId) {
-        this.categoriaId = categoriaId;
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
     }
-// ...
-
 }
