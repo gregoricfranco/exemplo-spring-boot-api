@@ -1,28 +1,44 @@
 package com.example.demo.models;
 
 import jakarta.persistence.*;
-
-import java.util.UUID;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "pessoa")
-public class Pessoa {
+public class Pessoa implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nome")
     private String nome;
 
-    @Column(name = "idade")
     private Integer idade;
 
-    @Column(name = "endereco")
     private String endereco;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST)
     private Categoria categoria;
+
+    public Pessoa(){
+
+    }
+    public Pessoa(String nome, Integer idade, String endereco, Categoria categoria) {
+        this.id = id;
+        this.nome = nome;
+        this.idade = idade;
+        this.endereco = endereco;
+        this.categoria = categoria;
+    }
+
+    public void merge(Pessoa pessoaUpdate) {
+        this.nome = pessoaUpdate.getNome();
+        this.idade = pessoaUpdate.getIdade();
+        this.endereco = pessoaUpdate.getEndereco();
+        this.categoria = pessoaUpdate.getCategoria();
+    }
 
     public Long getId() {
         return id;

@@ -2,18 +2,18 @@ package com.example.demo.models;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
 @Table(name = "categoria")
-public class Categoria {
+public class Categoria implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-    @Column(name = "nome")
     private String nome;
 
     public Long getId() {

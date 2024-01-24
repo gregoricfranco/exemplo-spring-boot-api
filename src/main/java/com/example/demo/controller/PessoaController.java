@@ -1,43 +1,69 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.PessoaDto;
 import com.example.demo.models.Pessoa;
+import com.example.demo.repository.CategoriaRepository;
 import com.example.demo.repository.PessoaRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
+@RequestMapping("/api/pessoas")
 public class PessoaController {
 
-    @Autowired
-    private PessoaRepository pessoaRepository;
+    private final PessoaRepository pessoaRepository;
+    private final CategoriaRepository categoriaRepository;
 
-    @GetMapping("/pessoas")
+    @Autowired
+    public PessoaController(PessoaRepository pessoaRepository, CategoriaRepository categoriaRepository) {
+        this.pessoaRepository = pessoaRepository;
+        this.categoriaRepository = categoriaRepository;
+    }
+
+    @GetMapping("/")
     public List<Pessoa> getAll() {
         return pessoaRepository.findAll();
     }
 
-    @GetMapping("/pessoas/{nome}")
+    @GetMapping("/{id}")
+    public Pessoa findById(@PathVariable Long id) {
+        return pessoaRepository.findById(id).orElseThrow();
+    }
+
+    @PostMapping("/")
+    public Pessoa create(@RequestBody @Valid PessoaDto pessoaDto){
+        categoriaRepository.save(pessoaDto.categoria());
+        return pessoaRepository.save(pessoaDto.toPessoa());
+    }
+
+    @PutMapping("/{id}")
+    public Pessoa update(@PathVariable Long id, @RequestBody @Valid Pessoa pessoaUpdate) {
+        Pessoa pessoa = pessoaRepository.findById(id).orElseThrow();
+
+        pessoa.merge(pessoaUpdate);
+        return pessoaRepository.save(pessoa);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        pessoaRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/nome/{nome}")
     public List<Pessoa> findByNome(@PathVariable String nome) {
         return pessoaRepository.findByNome(nome);
     }
 
-    @GetMapping("/pessoasbyIdade/{idade}")
+    @GetMapping("/idade/{idade}")
     public List<Pessoa> findByIdade(@PathVariable Integer idade) {
-
-        List<Pessoa> pessoas = pessoaRepository.findByIdade(idade);
-
-        if (pessoas == null) {
-            return new ArrayList<>();
-        }
-
-        return pessoas;
+        return pessoaRepository.findByIdade(idade);
     }
+
 
 }
