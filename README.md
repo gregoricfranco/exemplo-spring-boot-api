@@ -30,7 +30,7 @@ O projeto será iniciado na porta 8080.
 
 # Como usar o projeto
 Após iniciar o projeto, você pode acessar a aplicação no seguinte endereço:
-http://localhost:8080
+http://localhost:8080/api
 
 | Método | Endpoint | Parâmetros | Descrição | 
 |  :---:        |     :---:      |           :---:  |   :---: |
