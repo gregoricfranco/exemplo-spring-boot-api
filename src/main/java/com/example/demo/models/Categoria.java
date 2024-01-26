@@ -3,6 +3,7 @@ package com.example.demo.models;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -15,6 +16,9 @@ public class Categoria implements Serializable {
     private Long id;
 
     private String nome;
+
+    @OneToMany(mappedBy = "categoria")
+    private List<Pessoa> pessoas;
 
     public Long getId() {
         return id;
@@ -30,5 +34,13 @@ public class Categoria implements Serializable {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public List<Pessoa> getPessoas() {
+        return pessoas;
+    }
+
+    public void setPessoas(List<Pessoa> pessoas) {
+        this.pessoas = pessoas;
     }
 }

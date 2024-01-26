@@ -37,7 +37,6 @@ public class PessoaController {
 
     @PostMapping("/")
     public Pessoa create(@RequestBody @Valid PessoaDto pessoaDto){
-        categoriaRepository.save(pessoaDto.categoria());
         return pessoaRepository.save(pessoaDto.toPessoa());
     }
 
@@ -64,6 +63,5 @@ public class PessoaController {
     public List<Pessoa> findByIdade(@PathVariable Integer idade) {
         return pessoaRepository.findByIdade(idade);
     }
-
 
 }

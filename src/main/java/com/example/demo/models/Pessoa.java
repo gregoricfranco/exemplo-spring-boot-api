@@ -19,7 +19,9 @@ public class Pessoa implements Serializable {
 
     private String endereco;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
     private Categoria categoria;
 
     public Pessoa(){
