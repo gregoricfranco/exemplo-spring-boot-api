@@ -17,8 +17,6 @@ public class Categoria implements Serializable {
 
     private String nome;
 
-    @OneToMany(mappedBy = "categoria")
-    private List<Pessoa> pessoas;
 
     public Long getId() {
         return id;
@@ -36,11 +34,4 @@ public class Categoria implements Serializable {
         this.nome = nome;
     }
 
-    public List<Pessoa> getPessoas() {
-        return pessoas;
-    }
-
-    public void setPessoas(List<Pessoa> pessoas) {
-        this.pessoas = pessoas;
-    }
 }
