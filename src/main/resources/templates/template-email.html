@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Confirme seu Email</title>
+    <style type="text/css">
+        body {
+          font-family: Arial, sans-serif;
+        }
+        p, h1{
+         text-align: center,
+        }
+        a {
+          color: #1a82e2;
+          text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Confirm Your Email Address</h1>
+
+    <p th:text="${message}"></p>
+    <a th:href="@{${validationLink}}" target="_blank" style="display: block; width: 200px; height: 50px; line-height: 50px; text-align: center; margin: 20px auto; background-color: #1a82e2; color: #fff;">Confirm Email</a>
+
+    <p>Se isso não funcionar, copie e cole o seguinte link no seu navegador:</p>
+    <p><a th:href="@{${validationLink}}" target="_blank"><span th:text="@{${validationLink}}"></span></a></p>
+
+    <p>Validate Account</p>
+</body>
+</html>
