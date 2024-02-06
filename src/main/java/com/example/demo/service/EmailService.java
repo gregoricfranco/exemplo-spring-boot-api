@@ -6,50 +6,74 @@ import com.example.demo.model.Email;
 import com.example.demo.model.Usuario;
 import com.example.demo.repository.EmailRepository;
 import com.example.demo.repository.UsuarioRepository;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-
 public class EmailService {
-    @Autowired
-    private EmailRepository emailRepository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    @Autowired
+    private EmailRepository emailRepository;
+    private UsuarioRepository usuarioRepository;
     private JavaMailSender emailSender;
+    private final TemplateEngine templateEngine;
+
+    @Autowired
+    public EmailService(EmailRepository emailRepository, UsuarioRepository usuarioRepository, JavaMailSender emailSender, TemplateEngine templateEngine) {
+        this.emailRepository = emailRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.emailSender = emailSender;
+        this.templateEngine = templateEngine;
+    }
 
     @Transactional
-    private void sendEmail(Email email) {
+    private void sendEmail(Email email)  {
+
         email.setSendDateEmail(LocalDateTime.now());
+        MimeMessage mimeMessage = emailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+
         try {
-            SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-            simpleMailMessage.setFrom(fromEmail);
-            simpleMailMessage.setTo(email.getEmailTo());
-            simpleMailMessage.setSubject(email.getSubject());
-            simpleMailMessage.setText(email.getText());
-            emailSender.send(simpleMailMessage);
+            mimeMessageHelper.setFrom(fromEmail);
+            mimeMessageHelper.setTo(email.getEmailTo());
+            mimeMessageHelper.setSubject(email.getSubject());
+            Context context = new Context();
+
+            context.setVariable("message", "Welcome to our website! To complete the registration process, please click the following link:");
+            context.setVariable("name", "John Doe");
+            context.setVariable("validationLink", "http://localhost:8080/validate?token="+ this.createHas());
+
+            String processedString = templateEngine.process("template-email", context);
+            mimeMessageHelper.setText(processedString, true);
+            emailSender.send(mimeMessage);
             email.setStatusEmail(StatusEmail.Enviado);
-        }catch (RuntimeException e){
-            System.out.println(e.getMessage());
+        } catch (MessagingException e) {
             email.setStatusEmail(StatusEmail.Erro);
+            throw new RuntimeException(e);
         }finally {
             emailRepository.save(email);
         }
+
     }
 
+    private String createHas(){
+        return UUID.randomUUID().toString();
+    }
     public void sendEmailCreate(String emailTo, String mensagem, String subject){
         Email email = new Email(fromEmail, emailTo, subject, mensagem);
         this.sendEmail(email);
@@ -66,5 +90,6 @@ public class EmailService {
 
         emailsAdm.forEach(email -> sendEmail(new Email(fromEmail, email, "Ola admin, novo usuario cadastado do sistema", String.format(mensagem, email))));
     }
+
 
 }
