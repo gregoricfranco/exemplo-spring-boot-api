@@ -1,11 +1,13 @@
 package com.example.demo.model;
 
 
+import com.example.demo.dto.EmailDTO;
 import com.example.demo.enuns.StatusEmail;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,15 +25,20 @@ public class Email {
     private String emailTo;
     private String subject;
     @Column(columnDefinition = "TEXT")
-    private String text;
+    private String mensagem;
     private LocalDateTime sendDateEmail;
     private StatusEmail statusEmail;
 
+    private List<String> emails;
 
-    public Email(String emailFrom, String emailTo, String subject, String text) {
-        this.emailFrom = emailFrom;
-        this.emailTo = emailTo;
-        this.subject = subject;
-        this.text = text;
+
+    public Email(EmailDTO emailDTO) {
+        this.emailFrom = emailDTO.emailFrom();
+        this.emailTo = emailDTO.emailTo();
+        this.subject = emailDTO.subject();
+        this.mensagem = emailDTO.mensagem();
+        this.sendDateEmail = emailDTO.senDateEmail();
+        this.statusEmail = emailDTO.statusEmail();
+        this.emails = emailDTO.emails();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.EmailDTO;
 import com.example.demo.enuns.Categoria;
 import com.example.demo.enuns.StatusEmail;
 import com.example.demo.model.Email;
@@ -29,9 +30,9 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    private EmailRepository emailRepository;
-    private UsuarioRepository usuarioRepository;
-    private JavaMailSender emailSender;
+    private final EmailRepository emailRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final JavaMailSender emailSender;
     private final TemplateEngine templateEngine;
 
     @Autowired
@@ -70,12 +71,12 @@ public class EmailService {
         }
     }
 
-    public void genericSendEmail(List<Usuario> usuarios, String titulo, String mensagem, String subject, String template){
+    public void genericSendEmail(EmailDTO emailDTO, String template){
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put("titulo", titulo);
-        properties.put("mensagem", mensagem);
+        properties.put("titulo", emailDTO.subject());
+        properties.put("mensagem", emailDTO.mensagem());
 
-        usuarios.forEach(email -> sendMail(email.getEmail(),subject, template, properties));
+        emailDTO.emails().forEach(email -> sendMail(email,emailDTO.subject(), template, properties));
 
     }
 
