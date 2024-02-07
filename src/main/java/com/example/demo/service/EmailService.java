@@ -18,8 +18,9 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,56 +41,79 @@ public class EmailService {
         this.emailSender = emailSender;
         this.templateEngine = templateEngine;
     }
-
     @Transactional
-    private void sendEmail(Email email)  {
-
+    private void sendMail(String to, String subject, String template, Map<String, Object> model) {
+        Email email = new Email();
         email.setSendDateEmail(LocalDateTime.now());
-        MimeMessage mimeMessage = emailSender.createMimeMessage();
-        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+        email.setEmailFrom(to);
+        email.setEmailFrom(fromEmail);
+
+        Context context = new Context();
+        context.setVariables(model);
+        String content = templateEngine.process(template, context);
 
         try {
-            mimeMessageHelper.setFrom(fromEmail);
-            mimeMessageHelper.setTo(email.getEmailTo());
-            mimeMessageHelper.setSubject(email.getSubject());
-            Context context = new Context();
+            MimeMessage mimeMessage = emailSender.createMimeMessage();
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 
-            context.setVariable("message", "Welcome to our website! To complete the registration process, please click the following link:");
-            context.setVariable("name", "John Doe");
-            context.setVariable("validationLink", "http://localhost:8080/validate?token="+ this.createHas());
-
-            String processedString = templateEngine.process("template-email", context);
-            mimeMessageHelper.setText(processedString, true);
+            message.setTo(to);
+            message.setFrom(fromEmail);
+            message.setSubject(subject);
+            message.setText(content);
+            message.setText(content, true);
             emailSender.send(mimeMessage);
-            email.setStatusEmail(StatusEmail.Enviado);
-        } catch (MessagingException e) {
+        }catch (MessagingException e){
             email.setStatusEmail(StatusEmail.Erro);
             throw new RuntimeException(e);
         }finally {
             emailRepository.save(email);
         }
+    }
+
+    public void genericSendEmail(List<Usuario> usuarios, String titulo, String mensagem, String subject, String template){
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("titulo", titulo);
+        properties.put("mensagem", mensagem);
+
+        usuarios.forEach(email -> sendMail(email.getEmail(),subject, template, properties));
 
     }
 
-    private String createHas(){
-        return UUID.randomUUID().toString();
-    }
-    public void sendEmailCreate(String emailTo, String mensagem, String subject){
-        Email email = new Email(fromEmail, emailTo, subject, mensagem);
-        this.sendEmail(email);
-        this.sendEmailAllAdm();
-    }
-
-    private void sendEmailAllAdm (){
-        String mensagem = "Novo usuário %s se cadastrou com sucesso!"; // Informative message
+    public void avisoNovoUsuarioCadastrado(Usuario usuario){
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("name", usuario.getNome());
+        properties.put("email", usuario.getEmail());
+        properties.put("cargo", usuario.getCategoria());
 
         List<String> emailsAdm = usuarioRepository.findAll().stream()
-                .filter(usuario -> usuario.getCategoria() == Categoria.ADMINISTRADOR)
+                .filter(usuario1 -> usuario1.getCategoria() == Categoria.ADMINISTRADOR)
                 .map(Usuario::getEmail)
                 .collect(Collectors.toList());
 
-        emailsAdm.forEach(email -> sendEmail(new Email(fromEmail, email, "Ola admin, novo usuario cadastado do sistema", String.format(mensagem, email))));
+        emailsAdm.forEach(email -> sendMail(email,"Novo usuario Cadastrado no sistema", "template-generic", properties));
+
     }
 
+    public void validateUser(Usuario usuario){
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("name", usuario.getNome());
+        properties.put("mensagem", "Olá, " + usuario.getNome() + "! Por favor, valide seu cadastro clicando no link abaixo:");
+        properties.put("validationLink", "http://localhost:8080/validate?token="+usuario.getValidationToken());
+
+        sendMail(usuario.getEmail(), "Seja bem-vindo(a), " + usuario.getNome(), "template-valid-user", properties);
+        avisoNovoUsuarioCadastrado(usuario);
+    }
+
+
+
+    public void newPassword(Usuario usuario){
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("name", usuario.getNome());
+        properties.put("mensagem", "Ola, acesse esse link e crie uma nova senha");
+        properties.put("validationLink", "http://localhost:8080/newPassword?token="+usuario.getValidationToken());
+
+        sendMail(usuario.getEmail(), "Crie sua nova senha", "template-new-password", properties);
+        avisoNovoUsuarioCadastrado(usuario);
+    }
 
 }

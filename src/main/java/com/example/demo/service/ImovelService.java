@@ -47,7 +47,7 @@ public class ImovelService {
     private void enviarEmailCadastroImovel(Usuario usuario){
         String mensagem = "Seu imóvel %s foi criado com sucesso!";
         String subject = "Imóvel Criado com Sucesso";
-        emailService.sendEmailCreate(usuario.getEmail(), mensagem, subject);
+        //emailService.sendEmailCreate(usuario.getEmail(), mensagem, subject);
 
     }
 

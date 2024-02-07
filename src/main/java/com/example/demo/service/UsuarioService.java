@@ -26,15 +26,9 @@ public class UsuarioService {
     }
 
     public Usuario create(Usuario usuario){
-        this.sendEmailCreateUser(usuario);
+        emailService.validateUser(usuario);
         return usuarioRepository.save(usuario);
     }
 
-
-    private void sendEmailCreateUser(Usuario usuario) {
-        String mensagem = usuario.getNome() + ", " +" mensagem ";
-        String subject = "Seja bem vindo," + usuario.getNome();
-        emailService.sendEmailCreate(usuario.getEmail(), mensagem, subject);
-    }
 
 }
