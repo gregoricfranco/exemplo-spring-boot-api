@@ -1,51 +1,66 @@
-package com.example.demo.model;
+    package com.example.demo.model;
 
-import com.example.demo.dto.UsuarioDTO;
-import com.example.demo.enuns.Categoria;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+    import com.example.demo.dto.UsuarioDTO;
+    import com.example.demo.enuns.Categoria;
+    import com.fasterxml.jackson.annotation.JsonIgnore;
+    import jakarta.persistence.*;
+    import lombok.AllArgsConstructor;
+    import lombok.EqualsAndHashCode;
+    import lombok.Getter;
+    import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(of = "id")
-@Entity(name = "usuarios")
-@Table(name = "usuarios")
-public class Usuario  {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    import java.util.List;
+    import java.util.UUID;
 
 
-    private String nome;
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode(of = "id")
+    @Entity(name = "usuarios")
+    @Table(name = "usuarios")
+    public class Usuario  {
 
-    private String email;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+        private String nome;
+        private String telefone;
+        private boolean isValidado;
 
-    private String telefone;
+        @Column(unique = true)
+        private String email;
 
-    @Enumerated(EnumType.STRING)
-    private Categoria categoria;
+        @Transient
+        private String validationToken;
 
-    @ManyToOne
-    private Imagem imagem;
+        @Enumerated(EnumType.STRING)
+        private Categoria categoria;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<Imovel> imoveis ;
+        @ManyToOne
+        private Imagem imagem;
 
-    public Usuario(UsuarioDTO usuarioDTO){
-        this.id = usuarioDTO.id();
-        this.nome = usuarioDTO.nome();
-        this.email = usuarioDTO.email();
-        this.telefone = usuarioDTO.telefone();
-        this.categoria = usuarioDTO.categoria();
+        @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+        @JsonIgnore
+        private List<Imovel> imoveis ;
+
+        public Usuario(UsuarioDTO usuarioDTO){
+            this.id = usuarioDTO.id();
+            this.nome = usuarioDTO.nome();
+            this.email = usuarioDTO.email();
+            this.telefone = usuarioDTO.telefone();
+            this.categoria = usuarioDTO.categoria();
+            this.isValidado = usuarioDTO.isValidado();
+            this.validationToken = generateHash();
+
+        }
+
+        public String generateHash() {
+            this.validationToken = UUID.randomUUID().toString();
+            return validationToken;
+        }
+
+
+
+
     }
-}
