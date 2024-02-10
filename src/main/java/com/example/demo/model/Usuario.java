@@ -4,16 +4,13 @@
     import com.example.demo.enuns.Categoria;
     import com.fasterxml.jackson.annotation.JsonIgnore;
     import jakarta.persistence.*;
-    import lombok.AllArgsConstructor;
-    import lombok.EqualsAndHashCode;
-    import lombok.Getter;
-    import lombok.NoArgsConstructor;
+    import lombok.*;
 
     import java.util.List;
     import java.util.UUID;
 
 
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @EqualsAndHashCode(of = "id")
